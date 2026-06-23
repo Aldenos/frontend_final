@@ -1,14 +1,16 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { environment } from '../../../environments/environment';
 
 export interface PendingUser {
   id: number;
   email: string;
   firstName: string;
   lastName: string;
-  roleName: string;
+  roleName?: string;
+  role?: string;
+  status?: string;
   createdAt: string;
 }
 

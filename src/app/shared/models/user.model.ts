@@ -5,6 +5,9 @@ export interface User {
   firstName?: string;        
   lastName?: string;
   roleName: 'ADMIN' | 'DOCENTE' | 'ESTUDIANTE';
+  // Some parts of the app expect `role` and `name` fields — keep them optional
+  role?: string;
+  name?: string;
   status: 'PENDING' | 'ACTIVE' | 'REJECTED';
   verified: boolean;
   createdAt: string;

@@ -72,7 +72,7 @@ export class ManualEditorComponent implements OnInit {
 
   // ---- LÓGICA DE FLASHCARDS ----
   addFlashcard() {
-    this.flashcards.update(f => [...f, { term: '', definition: '' }]);
+    this.flashcards.update(f => [...f, { front: '', back: '' }]);
   }
   removeFlashcard(index: number) { this.flashcards.update(f => f.filter((_, i) => i !== index)); }
 
@@ -102,7 +102,7 @@ export class ManualEditorComponent implements OnInit {
     const dto = {
       title: this.activityTitle().trim(),
       type: 'QUIZ' as const,
-      status: 'ACTIVE' as const,
+      status: 'PUBLISHED' as const,
       generatedByAi: false,
       questions: this.questions()
     };
@@ -117,7 +117,7 @@ export class ManualEditorComponent implements OnInit {
     // Validación Flashcards
     for (let i = 0; i < this.flashcards().length; i++) {
       const f = this.flashcards()[i];
-      if (!f.term.trim() || !f.definition.trim()) { 
+      if (!f.front.trim() || !f.back.trim()) { 
         this.errorMsg.set(`La tarjeta ${i + 1} está incompleta (falta concepto o definición).`); 
         this.loading.set(false); 
         return; 

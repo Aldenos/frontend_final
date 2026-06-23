@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Activity, FlashcardSet } from '../../shared/models/activity.model';
+import { Activity, FlashcardSet, CreateQuizDto } from '../../shared/models/activity.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -13,7 +13,7 @@ export class ActivityService {
     return this.http.get<Activity[]>(`${environment.apiUrl}/topics/${topicId}/activities`);
   }
 
-  createQuiz(topicId: number, dto: Activity): Observable<Activity> {
+  createQuiz(topicId: number, dto: CreateQuizDto): Observable<Activity> {
     return this.http.post<Activity>(`${environment.apiUrl}/topics/${topicId}/activities`, dto);
   }
 

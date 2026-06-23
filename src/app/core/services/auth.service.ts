@@ -1,9 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap, switchMap } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { Observable } from 'rxjs';
+import { tap, switchMap, map } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
 import { TokenService } from './token.service';
-import { User } from '../shared/models/user.model';
+import { User } from '../../shared/models/user.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -21,9 +22,7 @@ export class AuthService {
         this.tokenSvc.saveToken(token);
         // Obtenemos el usuario autenticado desde /users/me
         return this.http.get<User>(`${environment.apiUrl}/users/me`).pipe(
-          tap(user => {
-            this.tokenSvc.saveUser(user);
-          }),
+          tap(user => this.tokenSvc.saveUser(user)),
           map(user => ({ token, user }))
         );
       })

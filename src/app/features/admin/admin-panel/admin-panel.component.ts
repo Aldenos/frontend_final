@@ -66,11 +66,11 @@ export class AdminPanelComponent implements OnInit {
 
     loadPending() {
         this.loadingData.set(true);
-        this.adminSvc.getPendingRequests().subscribe({
-            next: (data) => {
-                this.pendingUsers.set(data.content || []);
-                this.loadingData.set(false);
-            },
+            this.adminSvc.getPendingUsers().subscribe({
+                next: (data: PendingUser[]) => {
+                    this.pendingUsers.set(data || []);
+                    this.loadingData.set(false);
+                },
             error: () => {
                 this.showToast('Error al cargar las solicitudes');
                 this.loadingData.set(false);
