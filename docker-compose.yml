@@ -1,0 +1,91 @@
+version: '3.8'
+
+services:
+  # ========================
+  # POSTGRES DATABASE
+  # ========================
+  db:
+    image: postgres:16-alpine
+    container_name: learntrack-db
+    environment:
+      POSTGRES_DB: learntrack_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d learntrack_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - learntrack_net
+
+  # ========================
+  # BACKEND (Spring Boot + Groq)
+  # ========================
+  backend:
+    build:
+      context: ../learntrack-backend-main   # Ajusta esta ruta si tu backend está en otro lugar
+      dockerfile: Dockerfile
+    container_name: learntrack-backend
+    ports:
+      - "8080:8080"
+    environment:
+      # Base de datos
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/learntrack_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_SHOW_SQL=true
+      - SPRING_SQL_INIT_MODE=always
+      - SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION=true
+
+      # Email (Gmail)
+      - SPRING_MAIL_HOST=smtp.gmail.com
+      - SPRING_MAIL_PORT=587
+      - SPRING_MAIL_USERNAME=copitocorp.soporte@gmail.com
+      - SPRING_MAIL_PASSWORD=${MAIL_PASSWORD}
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH=true
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=true
+
+      # IA con Groq 
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - SPRING_AI_OPENAI_BASE_URL=https://api.groq.com/openai/v1
+      - SPRING_AI_OPENAI_CHAT_OPTIONS_MODEL=llama-3.3-70b-versatile
+      - SPRING_AI_OPENAI_CHAT_OPTIONS_TEMPERATURE=0.7
+      - SPRING_AI_OPENAI_CHAT_OPTIONS_MAX_TOKENS=4096
+
+      # JWT Secret
+      - JWT_SECRET=TuClaveSecretaSuperSeguraParaLearnTrackQueDebeSerLargaChangeInProduction
+
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: on-failure
+    networks:
+      - learntrack_net
+
+  # ========================
+  # FRONTEND (Angular + Nginx)
+  # ========================
+  frontend:
+    build:
+      context: ../learntrack-backend-main  # El contexto es la carpeta donde está este docker-compose (raíz del frontend)
+      dockerfile: Dockerfile
+    container_name: learntrack-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - learntrack_net
+
+volumes:
+  postgres_data:
+
+networks:
+  learntrack_net:
+    driver: bridge
